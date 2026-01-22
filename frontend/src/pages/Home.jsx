@@ -1,11 +1,71 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ShoppingBag, Shield, Zap, TrendingUp, Clock, Smartphone, ChevronRight, CheckCircle2, Star, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingBag, Shield, Zap, TrendingUp, Clock, Smartphone, ChevronRight, CheckCircle2, Star, ArrowRight, HelpCircle, Package, CreditCard, MessageCircle, ChevronDown, ShoppingCart } from 'lucide-react';
 import { Button } from '../components/ui';
 import SEO from '../components/SEO';
+import { useState } from 'react';
+import { getWhatsAppLink } from '../utils/formatters';
 
 
 export default function Home() {
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
+  // FAQ Data
+  const faqCategories = [
+    {
+      category: 'Umum',
+      questions: [
+        { q: 'Apa itu Soeltan Medsos?', a: 'Soeltan Medsos adalah platform Social Media Marketing (SMM) yang menyediakan layanan untuk meningkatkan engagement media sosial seperti followers, likes, views, dan lainnya secara aman dan terpercaya.' },
+        { q: 'Apakah layanan ini aman dan legal?', a: 'Ya, layanan kami menggunakan metode organik yang aman. Namun, penggunaan layanan SMM tetap merupakan tanggung jawab pengguna.' },
+        { q: 'Berapa lama waktu pengerjaan pesanan?', a: 'Waktu pengerjaan bervariasi tergantung jenis layanan dan jumlah pesanan. Umumnya 1-24 jam setelah pembayaran dikonfirmasi.' }
+      ]
+    },
+    {
+      category: 'Pemesanan',
+      questions: [
+        { q: 'Bagaimana cara memesan layanan?', a: 'Pilih layanan yang diinginkan, masukkan link/username target dan jumlah, tambahkan ke keranjang, lalu lakukan checkout dengan mengisi data diri dan melakukan pembayaran.' },
+        { q: 'Apakah perlu login untuk memesan?', a: 'Tidak perlu! Anda cukup isi nama dan nomor WhatsApp saat checkout.' },
+        { q: 'Kenapa harus input nomor WhatsApp?', a: 'Nomor WhatsApp digunakan untuk konfirmasi pesanan dan komunikasi jika ada kendala atau update terkait pesanan Anda.' }
+      ]
+    },
+    {
+      category: 'Pembayaran',
+      questions: [
+        { q: 'Metode pembayaran apa saja yang tersedia?', a: 'Kami menggunakan payment gateway Midtrans yang menerima: Transfer Bank, E-Wallet (GoPay, OVO, DANA, ShopeePay), Kartu Kredit/Debit, dan Indomaret/Alfamart.' },
+        { q: 'Apakah pembayaran aman?', a: 'Sangat aman! Kami menggunakan Midtrans, payment gateway terpercaya di Indonesia dengan sertifikasi keamanan internasional (PCI DSS Level 1).' }
+      ]
+    }
+  ];
+
+  // Buying Steps Data
+  const buyingSteps = [
+    {
+      icon: <ShoppingCart size={24} />,
+      title: 'Pilih Layanan',
+      description: 'Browse katalog layanan dan pilih paket yang sesuai kebutuhan Anda'
+    },
+    {
+      icon: <Package size={24} />,
+      title: 'Isi Detail',
+      description: 'Masukkan link/username target dan jumlah, lalu tambah ke keranjang'
+    },
+    {
+      icon: <CreditCard size={24} />,
+      title: 'Checkout & Bayar',
+      description: 'Isi data diri dan lakukan pembayaran melalui Midtrans'
+    },
+    {
+      icon: <MessageCircle size={24} />,
+      title: 'Konfirmasi',
+      description: 'Hubungi admin via WhatsApp dengan kode pembelian Anda'
+    },
+    {
+      icon: <Clock size={24} />,
+      title: 'Proses & Selesai',
+      description: 'Tim kami proses pesanan dalam 1-24 jam setelah bayar'
+    }
+  ];
+
   return (
     <>
       <SEO />
@@ -197,12 +257,178 @@ export default function Home() {
 
                     {/* Floating Label */}
                      <div className="absolute bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg z-30 flex items-center gap-2">
-                        <Smartphone size={16} /> Mobile Ready
+                        <Smartphone size={16} /> Start 100k
                      </div>
                  </div>
                </motion.div>
             </div>
           </div>
+        </div>
+      </section>
+
+
+      {/* FAQ Section - Shows First */}
+      <section id="faq" className="py-24 bg-slate-900">
+        <div className="container mx-auto px-6 md:px-12 max-w-4xl">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <HelpCircle size={32} className="text-indigo-400" />
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Pertanyaan Umum</span>
+            </h2>
+            <p className="text-slate-400 text-lg">
+              Jawaban untuk pertanyaan yang sering diajukan
+            </p>
+          </motion.div>
+
+          {/* FAQ Items */}
+          <div className="space-y-8">
+            {faqCategories.map((category, catIndex) => (
+              <motion.div
+                key={catIndex}
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: catIndex * 0.1 }}
+              >
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-indigo-400">#</span>
+                  {category.category}
+                </h3>
+                <div className="space-y-3">
+                  {category.questions.map((faq, qIndex) => {
+                    const index = `${catIndex}-${qIndex}`;
+                    const isOpen = openFaqIndex === index;
+                    
+                    return (
+                      <div
+                        key={qIndex}
+                        className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden hover:border-indigo-500/50 transition-all"
+                      >
+                        <button
+                          onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                          className="w-full px-6 py-4 flex items-center justify-between text-left transition-colors hover:bg-slate-800/80"
+                        >
+                          <span className="text-white font-semibold pr-4">{faq.q}</span>
+                          <ChevronDown
+                            size={20}
+                            className={`text-indigo-400 shrink-0 transition-transform ${
+                              isOpen ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <div className="px-6 pb-4 pt-2 text-slate-300 border-t border-slate-700">
+                                {faq.a}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Contact CTA */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-2xl p-8 text-center"
+          >
+            <h3 className="text-2xl font-bold text-white mb-3">
+              Tidak Menemukan Jawaban?
+            </h3>
+            <p className="text-slate-400 mb-6">
+              Hubungi admin kami untuk bantuan lebih lanjut. Kami siap membantu Anda!
+            </p>
+            <a
+              href={getWhatsAppLink('Halo Admin, saya ada pertanyaan...')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-green-500/25 hover:from-green-500 hover:to-emerald-500 transition-all"
+            >
+              <MessageCircle size={20} />
+              Hubungi via WhatsApp
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* How to Buy Section - Shows After FAQ */}
+      <section id="cara-beli" className="py-24 bg-slate-900/50">
+        <div className="container mx-auto px-6 md:px-12">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Cara Pembelian</span>
+            </h2>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              Proses mudah, cepat, dan aman dalam 5 langkah sederhana
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {buyingSteps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="relative bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-6 hover:border-indigo-500/50 transition-all group"
+              >
+                {/* Step Number */}
+                <div className="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                  {index + 1}
+                </div>
+                
+                {/* Icon */}
+                <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform">
+                  {step.icon}
+                </div>
+                
+                {/* Content */}
+                <h3 className="text-lg font-bold text-white mb-2">{step.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{step.description}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CTA Button */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6 }}
+            className="text-center mt-12"
+          >
+            <Link to="/products">
+              <Button className="h-14 px-10 text-lg rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-0 shadow-lg shadow-indigo-500/50">
+                Mulai Belanja Sekarang <ArrowRight size={20} />
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 

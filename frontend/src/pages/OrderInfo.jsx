@@ -6,9 +6,10 @@ import Breadcrumb from '../components/Breadcrumb';
 import OrderStepper from '../components/OrderStepper';
 import { PageLoader } from '../components/LoadingSpinner';
 import { formatRupiah, getWhatsAppLink } from '../utils/formatters';
-import { AlertTriangle, ArrowLeft, CreditCard } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CreditCard, Copy, Check, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function OrderInfo() {
   const { purchaseCode } = useParams();
@@ -16,7 +17,9 @@ export default function OrderInfo() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     loadOrder();
@@ -30,6 +33,19 @@ export default function OrderInfo() {
       setError('Pesanan tidak ditemukan');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefreshStatus = async () => {
+    setRefreshing(true);
+    try {
+      const response = await orderApi.refreshPaymentStatus(purchaseCode);
+      setOrder(response.data.data);
+      toast.success('Status berhasil diperbarui!');
+    } catch (error) {
+      toast.error('Gagal memperbarui status');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -89,6 +105,27 @@ export default function OrderInfo() {
         alert('Gagal update status dummy');
       }
     }
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(purchaseCode);
+    setCopied(true);
+    toast.success('Kode pembelian berhasil disalin!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleWhatsAppConfirmation = () => {
+    const message = `Halo Admin, saya ingin konfirmasi pesanan:
+
+Kode Pembelian: ${purchaseCode}
+Nama: ${order.buyer_name || '-'}
+Pesanan: ${order.product?.name || '-'} x ${order.quantity}
+Total: ${formatRupiah(order.amount)}
+
+Terima kasih!`;
+
+    const waLink = getWhatsAppLink(message);
+    window.open(waLink, '_blank');
   };
 
   const whatsappMessage = `Halo Admin, saya ingin konfirmasi pesanan dengan kode: ${purchaseCode}`;
@@ -151,13 +188,44 @@ export default function OrderInfo() {
           <p className="text-slate-400">Kode: <span className="text-indigo-400 font-mono font-semibold">{purchaseCode}</span></p>
         </motion.div>
 
+        {/* Purchase Code Card with Copy Button */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.05 }}
+          className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-2xl p-6 mb-6"
+        >
+          <div className="text-center mb-4">
+            <p className="text-slate-400 text-sm mb-2">Kode Pembelian Anda</p>
+            <code className="text-2xl md:text-3xl font-bold text-white font-mono tracking-wider">
+              {purchaseCode}
+            </code>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleCopyCode}
+              className="flex-1 bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 backdrop-blur-sm border border-white/10"
+            >
+              {copied ? <Check size={20} /> : <Copy size={20} />}
+              {copied ? 'Tersalin!' : 'Salin Kode'}
+            </button>
+            <button
+              onClick={handleWhatsAppConfirmation}
+              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+            >
+              <MessageCircle size={20} />
+              Konfirmasi via WhatsApp
+            </button>
+          </div>
+        </motion.div>
+
         {/* Order Status Card */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <OrderStatusCard order={order} />
+          <OrderStatusCard order={order} onRefresh={handleRefreshStatus} refreshing={refreshing} />
           
           <div className="mt-6 bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-6 shadow-lg">
             <h3 className="text-white font-semibold mb-4 text-center">Riwayat Status</h3>

@@ -25,10 +25,17 @@ const validateOrderCreate = [
         .isUUID().withMessage('Product ID tidak valid'),
     body('buyer_phone')
         .notEmpty().withMessage('Nomor telepon wajib diisi')
-        .matches(/^(\+62|62|0)8[1-9][0-9]{6,10}$/).withMessage('Format nomor telepon tidak valid'),
+        .isLength({ min: 10, max: 15 }).withMessage('Nomor telepon harus 10-15 digit'),
     body('target_link')
         .optional()
-        .isURL().withMessage('Format link tidak valid'),
+        .custom((value) => {
+            // Allow either URL format or simple username/text
+            // Just check if not empty and reasonable length
+            if (value && (value.length < 2 || value.length > 500)) {
+                throw new Error('Target link/username harus 2-500 karakter');
+            }
+            return true;
+        }),
     body('quantity')
         .optional()
         .isInt({ min: 1 }).withMessage('Jumlah minimal 1'),

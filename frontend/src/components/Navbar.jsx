@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, ShoppingCart, Home, Package, Search, HelpCircle, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import CartDrawer from './CartDrawer';
 
@@ -9,6 +9,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { cartCount, toggleCart } = useCart();
 
   useEffect(() => {
@@ -23,10 +24,33 @@ export default function Navbar() {
     setIsOpen(false);
   }, [location]);
 
+  const scrollToSection = (sectionId) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    setIsOpen(false);
+  };
+
   const navLinks = [
-    { to: '/', label: 'Beranda' },
-    { to: '/products', label: 'Layanan' },
-    { to: '/cek-pesanan', label: 'Cek Pesanan' },
+    { to: '/', label: 'Beranda', icon: <Home size={20} /> },
+    { to: '/products', label: 'Layanan', icon: <Package size={20} /> },
+    { to: '/cek-pesanan', label: 'Cek Pesanan', icon: <Search size={20} /> },
+  ];
+
+  const anchorLinks = [
+    { id: 'cara-beli', label: 'Cara Beli', icon: <ShoppingBag size={20} /> },
+    { id: 'faq', label: 'FAQ', icon: <HelpCircle size={20} /> },
   ];
 
   return (
@@ -106,33 +130,104 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-slate-900 border-t border-slate-700"
-          >
-            <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`font-medium transition-colors py-2 ${
-                    location.pathname === link.to
-                      ? 'text-indigo-400'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
       </nav>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
+            />
+            
+            {/* Sidebar */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 bottom-0 w-80 bg-slate-900 border-l border-slate-700 shadow-2xl z-50 md:hidden overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img src="/LOGO-.png" alt="Logo" className="h-10 w-auto" />
+                  <div>
+                    <p className="text-white font-bold">Soeltan</p>
+                    <p className="text-xs text-indigo-400 uppercase tracking-widest">Medsos</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                >
+                  <X size={24} className="text-white" />
+                </button>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="p-4 space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-2">Menu</p>
+                {navLinks.map((link, index) => (
+                  <motion.div
+                    key={link.to}
+                    initial={{ x: 50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Link
+                      to={link.to}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                        location.pathname === link.to
+                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      {link.icon}
+                      <span className="font-medium">{link.label}</span>
+                    </Link>
+                  </motion.div>
+                ))}
+
+                {/* Anchor Links (Landing Page Sections) */}
+                <div className="pt-4">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-2">Quick Links</p>
+                  {anchorLinks.map((link, index) => (
+                    <motion.div
+                      key={link.id}
+                      initial={{ x: 50, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: (navLinks.length + index) * 0.05 }}
+                    >
+                      <button
+                        onClick={() => scrollToSection(link.id)}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all text-left"
+                      >
+                        {link.icon}
+                        <span className="font-medium">{link.label}</span>
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-slate-950/50 border-t border-slate-800">
+                <p className="text-xs text-slate-500 text-center">
+                  © 2026 Soeltan Medsos
+                </p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Global Cart Drawer */}
       <CartDrawer />
     </>

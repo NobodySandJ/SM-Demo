@@ -59,11 +59,11 @@ export function getPaymentStatusInfo(status) {
  */
 export function getSellerStatusInfo(status) {
     const statusMap = {
-        pending: { label: 'Pending', color: 'badge-pending' },
-        process: { label: 'Diproses', color: 'badge-process' },
-        done: { label: 'Selesai', color: 'badge-done' },
+        pending: { label: 'Pending', color: 'badge-pending', bgColor: 'bg-blue-500/20', textColor: 'text-blue-400', borderColor: 'border-blue-500/30' },
+        process: { label: 'Diproses', color: 'badge-process', bgColor: 'bg-yellow-500/20', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/30' },
+        done: { label: 'Selesai', color: 'badge-done', bgColor: 'bg-green-500/20', textColor: 'text-green-400', borderColor: 'border-green-500/30' },
     };
-    return statusMap[status] || { label: status, color: 'badge-pending' };
+    return statusMap[status] || { label: status, color: 'badge-pending', bgColor: 'bg-blue-500/20', textColor: 'text-blue-400', borderColor: 'border-blue-500/30' };
 }
 
 /**
@@ -74,6 +74,25 @@ export function getWhatsAppLink(message = '') {
     const encodedMessage = encodeURIComponent(message);
     return `https://wa.me/${phone}?text=${encodedMessage}`;
 }
+
+/**
+ * Get WhatsApp confirmation link with formatted order details
+ */
+export function getWhatsAppConfirmationLink(orderData) {
+    const { purchase_code, buyer_name, product, quantity, amount } = orderData;
+
+    const message = `Halo Admin, saya ingin konfirmasi pesanan:
+
+Kode Pembelian: ${purchase_code}
+Nama: ${buyer_name || '-'}
+Pesanan: ${product?.name || '-'} x ${quantity}
+Total: ${formatRupiah(amount)}
+
+Terima kasih!`;
+
+    return getWhatsAppLink(message);
+}
+
 
 /**
  * Platform icons mapping

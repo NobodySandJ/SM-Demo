@@ -16,5 +16,6 @@ router.get('/platforms/:platform/sub-platforms', productController.getSubPlatfor
 router.post('/order/create', orderLimiter, validateOrderCreate, orderController.createOrder);
 router.get('/order/status/:purchase_code', validatePurchaseCode, orderController.getOrderStatus);
 router.post('/order/pay', orderController.createPayment);
+router.post('/order/:purchaseCode/refresh-status', orderController.refreshPaymentStatus);
 
 module.exports = router;

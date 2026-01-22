@@ -4,15 +4,15 @@ const { v4: uuidv4 } = require('uuid');
 
 class DummyMidtransService {
     constructor() {
-        console.log('⚠️  USING DUMMY MIDTRANS SERVICE (No API Keys required)');
+        console.log('⚠️  USING DUMMY MIDTRANS SERVICE (No API Keys configured)');
     }
 
-    async createTransaction(orderId, amount, customerDetails, itemDetails) {
-        console.log(`[DUMMY] Creating transaction for ${orderId}: ${amount}`);
+    async createSnapTransaction(order, product) {
+        console.log(`[DUMMY] Creating transaction for order ${order.id}: Rp ${order.amount}`);
 
-        // Simulate Snap Token
+        // Simulate Snap Token for testing
         const snapToken = `DUMMY-TOKEN-${uuidv4()}`;
-        const redirectUrl = `http://localhost:5173/order/${orderId}?status=pending`; // This won't actually be used by Snap.js but provided for structure
+        const redirectUrl = `http://localhost:5173/cek-pesanan?code=${order.purchase_code}`;
 
         return {
             token: snapToken,
@@ -24,14 +24,25 @@ class DummyMidtransService {
         console.log('[DUMMY] Verifying notification:', notification);
         return {
             ...notification,
+            order_id: notification.order_id,
             transaction_status: notification.transaction_status || 'settlement',
             fraud_status: 'accept'
+        };
+    }
+
+    async getTransactionStatus(orderId) {
+        console.log('[DUMMY] Getting transaction status for:', orderId);
+        return {
+            transaction_status: 'settlement',
+            order_id: orderId
         };
     }
 }
 
 class RealMidtransService {
     constructor() {
+        console.log('✅ Using REAL Midtrans Service (Sandbox Mode:', !config.midtrans.isProduction, ')');
+
         this.snap = new midtransClient.Snap({
             isProduction: config.midtrans.isProduction,
             serverKey: config.midtrans.serverKey,
@@ -45,19 +56,33 @@ class RealMidtransService {
         });
     }
 
-    async createTransaction(orderId, amount, customerDetails, itemDetails) {
+    async createSnapTransaction(order, product) {
         const parameter = {
             transaction_details: {
-                order_id: orderId,
-                gross_amount: amount,
+                order_id: String(order.id),
+                gross_amount: order.amount,
             },
             credit_card: {
                 secure: true,
             },
-            customer_details: customerDetails,
-            item_details: itemDetails,
+            customer_details: {
+                first_name: order.buyer_name || 'Customer',
+                phone: order.buyer_phone || '',
+            },
+            item_details: [
+                {
+                    id: String(product.id),
+                    name: product.name.substring(0, 50), // Midtrans max 50 chars
+                    price: product.price,
+                    quantity: order.quantity,
+                }
+            ],
+            callbacks: {
+                finish: `${config.frontend.url}/cek-pesanan?code=${order.purchase_code}`,
+            },
         };
 
+        console.log('Creating Midtrans transaction with params:', JSON.stringify(parameter, null, 2));
         return this.snap.createTransaction(parameter);
     }
 

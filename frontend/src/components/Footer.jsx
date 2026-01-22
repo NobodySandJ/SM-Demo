@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-slate-800 pb-16">
           
           {/* Brand Column */}
-          <div className="md:col-span-5 space-y-6">
+          <div className="md:col-span-4 space-y-6">
             <Link to="/" className="flex items-center gap-3 group">
               <img 
                 src="/LOGO-.png" 
@@ -41,13 +41,24 @@ export default function Footer() {
           </div>
 
           {/* Links Column */}
-          <div className="md:col-span-3 space-y-6">
+          <div className="md:col-span-2 space-y-6">
             <h4 className="text-white font-bold text-lg">Pintasan</h4>
             <ul className="space-y-4">
               <li><Link to="/" className="hover:text-white transition-colors">Beranda</Link></li>
-              <li><a href="https://wa.me/6282352835382?text=Halo%20Admin,%20saya%20mau%20tanya%20jasa%20website" target="_blank" className="hover:text-white transition-colors">Jasa Pembuatan Website</a></li>
+              <li><Link to="/products" className="hover:text-white transition-colors">Layanan</Link></li>
               <li><Link to="/cek-pesanan" className="hover:text-white transition-colors">Lacak Pesanan</Link></li>
               <li><Link to="/admin/login" className="hover:text-white transition-colors">Login Staff</Link></li>
+            </ul>
+          </div>
+
+          {/* Help Column */}
+          <div className="md:col-span-2 space-y-6">
+            <h4 className="text-white font-bold text-lg">Bantuan</h4>
+            <ul className="space-y-4">
+              <li><Link to="/cara-beli" className="hover:text-white transition-colors">Cara Beli</Link></li>
+              <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link to="/syarat-ketentuan" className="hover:text-white transition-colors">Syarat & Ketentuan</Link></li>
+              <li><a href="https://wa.me/6282352835382" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Hubungi Kami</a></li>
             </ul>
           </div>
 
@@ -80,8 +91,9 @@ export default function Footer() {
         <div className="pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500">
           <p>© {year} Soeltan Medsos. All rights reserved.</p>
           <div className="flex gap-8">
-            <a href="/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</a>
+            <Link to="/syarat-ketentuan" className="hover:text-indigo-400 transition-colors">Syarat & Ketentuan</Link>
+            <Link to="/faq" className="hover:text-indigo-400 transition-colors">FAQ</Link>
+            <Link to="/cara-beli" className="hover:text-indigo-400 transition-colors">Cara Beli</Link>
           </div>
         </div>
       </div>

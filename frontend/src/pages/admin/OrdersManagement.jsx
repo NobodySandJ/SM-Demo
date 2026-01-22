@@ -217,7 +217,7 @@ export default function OrdersManagement() {
                          </span>
                       </td>
                       <td className="px-6 py-4">
-                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${sellerStatus.color === 'badge-success' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : sellerStatus.color === 'badge-warning' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
+                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${sellerStatus.bgColor} ${sellerStatus.textColor} ${sellerStatus.borderColor}`}>
                            {sellerStatus.label}
                          </span>
                       </td>
@@ -238,7 +238,7 @@ export default function OrdersManagement() {
       {/* Order Detail Modal */}
       <AnimatePresence>
         {selectedOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
             <motion.div 
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
@@ -251,7 +251,7 @@ export default function OrdersManagement() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden border border-slate-700"
+              className="bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden border border-slate-700 my-auto"
             >
               <div className="px-6 py-5 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0">
                 <h2 className="text-xl font-bold text-white">Detail Order</h2>

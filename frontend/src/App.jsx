@@ -12,6 +12,10 @@ import ProductDetail from './pages/ProductDetail';
 import OrderInfo from './pages/OrderInfo';
 import CheckOrder from './pages/CheckOrder';
 import Checkout from './pages/Checkout';
+import PurchaseSuccess from './pages/PurchaseSuccess';
+import HowToBuy from './pages/HowToBuy';
+import FAQ from './pages/FAQ';
+import TermsConditions from './pages/TermsConditions';
 
 // Admin Pages
 import AdminLogin from './pages/admin/Login';
@@ -64,6 +68,10 @@ export default function App() {
       <Route path="/order/:purchaseCode" element={<PublicLayout><OrderInfo /></PublicLayout>} />
       <Route path="/cek-pesanan" element={<PublicLayout><CheckOrder /></PublicLayout>} />
       <Route path="/checkout" element={<PublicLayout><Checkout /></PublicLayout>} />
+      <Route path="/purchase-success/:purchaseCode" element={<PublicLayout><PurchaseSuccess /></PublicLayout>} />
+      <Route path="/cara-beli" element={<PublicLayout><HowToBuy /></PublicLayout>} />
+      <Route path="/faq" element={<PublicLayout><FAQ /></PublicLayout>} />
+      <Route path="/syarat-ketentuan" element={<PublicLayout><TermsConditions /></PublicLayout>} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

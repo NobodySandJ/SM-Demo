@@ -5,8 +5,9 @@ import {
   getSellerStatusInfo,
   getWhatsAppLink 
 } from '../utils/formatters';
+import { Loader2 } from 'lucide-react';
 
-export default function OrderStatusCard({ order }) {
+export default function OrderStatusCard({ order, onRefresh, refreshing }) {
   const paymentStatus = getPaymentStatusInfo(order.status_payment);
   const sellerStatus = getSellerStatusInfo(order.status_seller);
 
@@ -45,22 +46,41 @@ export default function OrderStatusCard({ order }) {
         <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
           <div>
             <p className="text-xs text-slate-500 mb-1">Status Pembayaran</p>
-            <span className={`badge ${paymentStatus.color}`}>{paymentStatus.label}</span>
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+              paymentStatus.color === 'badge-paid' ? 'bg-green-500/10 text-green-600 border-green-500/20' : 
+              paymentStatus.color === 'badge-waiting' || paymentStatus.color === 'badge-pending' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' : 
+              paymentStatus.color === 'badge-expire' || paymentStatus.color === 'badge-deny' ? 'bg-red-500/10 text-red-600 border-red-500/20' :
+              'bg-slate-500/10 text-slate-600 border-slate-500/20'
+            }`}>
+              {paymentStatus.label}
+            </span>
           </div>
           <div>
             <p className="text-xs text-slate-500 mb-1">Status Pengerjaan</p>
-            <span className={`badge ${sellerStatus.color}`}>{sellerStatus.label}</span>
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${sellerStatus.bgColor.replace('/20', '/10')} ${sellerStatus.textColor.replace('400', '600')} ${sellerStatus.borderColor}`}>
+              {sellerStatus.label}
+            </span>
           </div>
         </div>
 
         {/* Actions */}
         <div className="border-t border-slate-100 pt-4 space-y-3">
-          {order.status_payment !== 'paid' && order.status_payment !== 'expire' && (
+          {order.status_payment !== 'paid' && order.status_payment !== 'expire' && onRefresh && (
             <button
-              onClick={() => window.location.reload()}
-              className="w-full btn btn-secondary text-sm"
+              onClick={onRefresh}
+              disabled={refreshing}
+              className="w-full btn btn-secondary text-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              🔄 Refresh Status
+              {refreshing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Memeriksa Status...
+                </>
+              ) : (
+                <>
+                  🔄 Refresh Status
+                </>
+              )}
             </button>
           )}
           

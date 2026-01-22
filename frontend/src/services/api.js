@@ -45,6 +45,7 @@ export const orderApi = {
     create: (data) => api.post('/order/create', data),
     getStatus: (purchaseCode) => api.get(`/order/status/${purchaseCode}`),
     createPayment: (purchaseCode) => api.post('/order/pay', { purchase_code: purchaseCode }),
+    refreshPaymentStatus: (purchaseCode) => api.post(`/order/${purchaseCode}/refresh-status`),
 };
 
 // Admin API

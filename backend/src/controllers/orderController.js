@@ -1,6 +1,6 @@
 const supabase = require('../services/supabase');
 const midtransService = require('../services/midtrans');
-const { generatePurchaseCode, sanitizePhone } = require('../utils/helpers');
+const { generatePurchaseCode, sanitizePhone, mapPaymentStatus } = require('../utils/helpers');
 
 /**
  * Create a new order
@@ -46,7 +46,7 @@ async function createOrder(req, res) {
                 quantity,
                 amount,
                 notes: notes || null,
-                status_payment: 'pending',
+                status_payment: 'pending', // Pending until payment via Midtrans
                 status_seller: 'pending',
             })
             .select()
@@ -235,9 +235,65 @@ async function getOrderById(orderId) {
     return data;
 }
 
+/**
+ * Refresh payment status from Midtrans (for development/manual check)
+ * @route POST /api/orders/:purchaseCode/refresh-status
+ */
+async function refreshPaymentStatus(req, res) {
+    try {
+        const { purchaseCode } = req.params;
+
+        // Get order by purchase code
+        const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('purchase_code', purchaseCode)
+            .single();
+
+        if (orderError || !order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order tidak ditemukan',
+            });
+        }
+
+        // Check Midtrans transaction status
+        const transactionStatus = await midtransService.getTransactionStatus(order.id);
+
+        // Map to internal status
+        const newStatus = mapPaymentStatus(
+            transactionStatus.transaction_status,
+            transactionStatus.fraud_status
+        );
+
+        // Update order status
+        const { data: updatedOrder, error: updateError } = await supabase
+            .from('orders')
+            .update({ status_payment: newStatus })
+            .eq('id', order.id)
+            .select('*, product:product_id(*)')
+            .single();
+
+        if (updateError) throw updateError;
+
+        res.json({
+            success: true,
+            message: 'Status berhasil diperbarui',
+            data: updatedOrder,
+        });
+    } catch (error) {
+        console.error('Refresh payment status error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal memperbarui status pembayaran',
+        });
+    }
+}
+
 module.exports = {
     createOrder,
     getOrderStatus,
     createPayment,
     getOrderById,
+    refreshPaymentStatus,
 };

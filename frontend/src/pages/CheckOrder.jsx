@@ -1,29 +1,39 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { orderApi } from '../services/api';
 import OrderStatusCard from '../components/OrderStatusCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Button, Input } from '../components/ui';
-import { Search, PackageSearch } from 'lucide-react';
+import { Search, PackageSearch, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 export default function CheckOrder() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [purchaseCode, setPurchaseCode] = useState('');
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!purchaseCode.trim()) return;
+  // Auto-load if code is in URL query params
+  useEffect(() => {
+    const codeFromUrl = searchParams.get('code');
+    if (codeFromUrl) {
+      setPurchaseCode(codeFromUrl.toUpperCase());
+      handleSearch(codeFromUrl.toUpperCase());
+    }
+  }, [searchParams]);
+
+  const handleSearch = async (code) => {
+    if (!code.trim()) return;
 
     setOrder(null);
     setLoading(true);
 
     try {
-      const code = purchaseCode.toUpperCase().trim();
-      const response = await orderApi.getStatus(code);
+      const cleanCode = code.toUpperCase().trim();
+      const response = await orderApi.getStatus(cleanCode);
       setOrder(response.data.data);
       toast.success('Pesanan ditemukan!');
     } catch (error) {
@@ -33,11 +43,60 @@ export default function CheckOrder() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    handleSearch(purchaseCode);
+  };
+
+  const handlePayNow = async () => {
+    if (!order) return;
+    
+    setPaymentLoading(true);
+    
+    try {
+      const response = await orderApi.createPayment(order.purchase_code);
+      const { snap_token } = response.data.data;
+      
+      if (snap_token && window.snap) {
+        window.snap.pay(snap_token, {
+          onSuccess: function(result) {
+            console.log('Payment success:', result);
+            toast.success('Pembayaran berhasil!');
+            // Refresh order status
+            handleSearch(order.purchase_code);
+          },
+          onPending: function(result) {
+            console.log('Payment pending:', result);
+            toast.info('Pembayaran pending. Silakan selesaikan pembayaran.');
+          },
+          onError: function(result) {
+            console.error('Payment error:', result);
+            toast.error('Pembayaran gagal. Silakan coba lagi.');
+          },
+          onClose: function() {
+            console.log('Snap popup closed');
+            toast.info('Pembayaran dibatalkan.');
+          }
+        });
+      } else {
+        toast.error('Payment gateway tidak tersedia');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error(error.response?.data?.message || 'Gagal memulai pembayaran');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const handleViewDetail = () => {
     if (order) {
       navigate(`/order/${order.purchase_code}`);
     }
   };
+
+  // Check if order needs payment
+  const needsPayment = order && ['pending', 'waiting_payment'].includes(order.status_payment);
 
   return (
     <div className="min-h-screen bg-slate-900 pt-28 pb-12">
@@ -94,8 +153,30 @@ export default function CheckOrder() {
             <motion.div 
                initial={{ opacity: 0, scale: 0.95 }}
                animate={{ opacity: 1, scale: 1 }}
+               className="space-y-4"
             >
               <OrderStatusCard order={order} onViewDetail={handleViewDetail} />
+              
+              {/* Payment Button if needed */}
+              {needsPayment && (
+                <Button
+                  onClick={handlePayNow}
+                  disabled={paymentLoading}
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 shadow-lg shadow-green-500/25 flex items-center justify-center gap-2"
+                >
+                  {paymentLoading ? (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      <span>Memproses...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard size={20} />
+                      <span>Bayar Sekarang</span>
+                    </>
+                  )}
+                </Button>
+              )}
             </motion.div>
           )}
         </motion.div>
