@@ -13,63 +13,50 @@ Aplikasi ini memiliki sistem manajemen data lengkap untuk Admin:
 
 ### B. Manajemen Kategori
 
-- **Create**: Menambah kategori layanan baru (misal: Instagram, TikTok).
-- **Read/Update/Delete**: Mengelola nama dan slug kategori.
+- **Update/Delete**: Mengelola kategori layanan.
 
 ### C. Manajemen Pesanan (Orders)
 
-- **Read**: Admin dapat melihat semua pesanan masuk (Status: Pending, Processing, Success, Error).
-- **Update**: Mengubah status pesanan secara manual (misal: dari _Processing_ menjadi _Success_).
-- **Update Pembayaran**: Admin kini bisa mengubah status pembayaran manual jika ada kendala sistem (Pending -> Paid).
+- **Read**: Admin dapat melihat semua pesanan masuk.
+- **Update**: Mengubah status pesanan manual (Processing -> Success).
+- **Update Pembayaran**: Admin kini bisa mengubah status pembayaran manual (Pending -> Paid).
 
 ---
 
 ## 2. Status Payment Gateway (Midtrans) - _PENTING_
 
-Sistem pembayaran saat ini telah dikonfigurasi ke **MODE PRODUKSI (LIVE)**.
+Sistem pembayaran telah dikonfigurasi ke **MODE PRODUKSI (LIVE)**.
 
-- **Status**: ✅ Siap menerima uang asli (bukan testing lagi).
-- **Tindakan Diperlukan**:
-  Agar uang masuk ke rekening perusahaan, mohon input **Server Key** & **Client Key** produksi dari dashboard Midtrans ke file konfigurasi (`.env`).
-  - _Catatan_: Saat ini kode sudah diset `isProduction: true`. Segera setelah Key dimasukkan, pembayaran via QRIS/VA/E-Wallet akan langsung aktif dan real-time.
+- **Status**: ✅ Siap menerima uang asli.
+- **Tindakan Diperlukan**: Input **Server Key** & **Client Key** produksi dari dashboard Midtrans ke file `.env` di server Backend.
 
 ---
 
-## 3. Update Branding & UI (Terbaru)
+## 3. Cara Deploy (Panduan Instalasi)
 
-- **Logo Admin**: Halaman login Admin kini menampilkan **Logo Asli Soeltan Medsos**, menggantikan logo inisial "S" default, memberikan kesan lebih profesional dan kredibel.
+Benar, deployment dilakukan **2 KALI** (Backend dulu, baru Frontend).
 
----
+### Tahap 1: Deploy Backend (Server)
 
-## 4. Cara Deploy (Panduan Instalasi)
+Tujuannya: Agar API & Database online dulu.
 
-### Opsi A: Deployment Otomatis (Vercel) - _TERM Mudah_
+1.  Upload folder `backend` ke layanan hosting (Vercel/Railway/VPS).
+2.  Set Environment Variables (`DATABASE_URL`, `SUPABASE_KEY`, `MIDTRANS_SERVER_KEY`, dll).
+3.  Deploy.
+4.  **COPY URL Backend** yang sudah jadi (Contoh: `https://api-soeltan.vercel.app`). Simpan URL ini.
 
-Cocok untuk demo atau production skala kecil.
+### Tahap 2: Deploy Frontend (Tampilan)
 
-1.  Upload kode project ke **GitHub**.
-2.  Buka [Vercel.com](https://vercel.com) -> **Add New Project**.
-3.  Pilih repository GitHub project ini.
-4.  Masukkan **Environment Variables** (sesuai file `.env`).
-5.  Klik **Deploy**. Website akan langsung online.
+Tujuannya: Agar website bisa diakses user dan terhubung ke Backend tadi.
 
-### Opsi B: Deployment Manual (VPS/Hosting)
-
-Jika menggunakan server sendiri (Ubuntu/CentOS).
-
-**Langkah 1: Backend**
-
-1.  Upload folder `backend` ke server.
-2.  Install dependencies: `npm install --production`.
-3.  Jalankan server: `npm start` (Pastikan port 3001 terbuka).
-
-**Langkah 2: Frontend**
-
-1.  Di komputer lokal, jalankan: `npm run build`.
-2.  Akan muncul folder baru bernama `dist`.
-3.  Upload isi folder `dist` tersebut ke folder publik di hosting (misal: `public_html` atau `/var/www/html`).
+1.  Buka project `frontend`.
+2.  Set Environment Variable:
+    - `VITE_API_URL` = (Paste URL Backend dari Tahap 1 tadi).
+3.  Deploy Frontend (Vercel/Netlify).
+4.  Selesai! Website sudah bisa dibuka.
 
 ---
 
 **Kesimpulan:**
-Aplikasi sudah **SIAP LIVE**. Seluruh fitur CRUD berfungsi, branding sudah sesuai identitas bisnis, dan payment gateway siap switch ke mode uang asli.
+Aplikasi sudah **SIAP LIVE**.
+Ikuti urutan deploy: **BACKEND** -> **FRONTEND**.
