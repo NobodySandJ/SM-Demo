@@ -31,21 +31,29 @@ export const Button = ({ children, variant = 'primary', className, ...props }) =
   );
 };
 
-export const Input = ({ label, error, className, ...props }) => (
+export const Input = ({ label, error, className, endContent, ...props }) => (
   <div className="w-full space-y-2">
     {label && (
       <label className="text-sm font-semibold text-slate-700 ml-1">
         {label}
       </label>
     )}
-    <input
-      className={cn(
-        "w-full px-5 py-3.5 rounded-xl bg-slate-800/50 border border-slate-700 focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-white placeholder:text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed",
-        error && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
-        className
+    <div className="relative">
+      <input
+        className={cn(
+          "w-full px-5 py-3.5 rounded-xl bg-slate-800/50 border border-slate-700 focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-white placeholder:text-slate-500 disabled:opacity-50 disabled:cursor-not-allowed",
+          error && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+          endContent && "pr-12",
+          className
+        )}
+        {...props}
+      />
+      {endContent && (
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+          {endContent}
+        </div>
       )}
-      {...props}
-    />
+    </div>
     {error && <p className="text-xs font-semibold text-red-500 ml-1">{error}</p>}
   </div>
 );
