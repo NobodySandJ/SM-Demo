@@ -356,6 +356,38 @@ async function updateSellerStatus(req, res) {
 }
 
 /**
+ * Update payment status
+ * @route PUT /api/admin/order/:id/status-payment
+ */
+async function updatePaymentStatus(req, res) {
+    try {
+        const { id } = req.params;
+        const { status_payment } = req.body;
+
+        const { data, error } = await supabase
+            .from('orders')
+            .update({ status_payment })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            message: 'Status pembayaran berhasil diupdate',
+            data,
+        });
+    } catch (error) {
+        console.error('Update payment status error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengupdate status pembayaran',
+        });
+    }
+}
+
+/**
  * Get payment logs (admin)
  * @route GET /api/admin/payment-logs
  */
@@ -589,6 +621,7 @@ module.exports = {
     getAllOrders,
     getOrderDetail,
     updateSellerStatus,
+    updatePaymentStatus,
     getPaymentLogs,
     getDashboard,
     createAdmin,

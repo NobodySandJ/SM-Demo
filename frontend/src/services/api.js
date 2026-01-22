@@ -64,6 +64,7 @@ export const adminApi = {
     getOrders: (params) => api.get('/admin/orders', { params }),
     getOrderDetail: (id) => api.get(`/admin/order/${id}`),
     updateSellerStatus: (id, status) => api.put(`/admin/order/${id}/status-seller`, { status_seller: status }),
+    updatePaymentStatus: (id, status) => api.put(`/admin/order/${id}/status-payment`, { status_payment: status }),
     deleteOrder: (id) => api.delete(`/admin/order/${id}`),
     batchDeleteOrders: (criteria) => api.delete('/admin/orders/batch', { data: { criteria } }),
 

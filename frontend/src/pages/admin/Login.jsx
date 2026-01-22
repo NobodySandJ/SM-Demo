@@ -40,7 +40,7 @@ export default function AdminLogin() {
       >
         <div className="bg-slate-800 p-10 rounded-3xl shadow-2xl border border-slate-700">
           <div className="text-center mb-10">
-            <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 border border-slate-700">S</div>
+            <img src="/LOGO-.png" alt="Logo" className="w-32 mx-auto mb-6" />
             <h1 className="text-2xl font-bold text-white">
               Admin <span className="text-indigo-500">Portal</span>
             </h1>

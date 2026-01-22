@@ -92,6 +92,17 @@ const validateStatusSellerUpdate = [
     handleValidationErrors,
 ];
 
+
+// Status payment update validation
+const validateStatusPaymentUpdate = [
+    param('id')
+        .isUUID().withMessage('Order ID tidak valid'),
+    body('status_payment')
+        .notEmpty().withMessage('Status payment wajib diisi')
+        .isIn(['pending', 'waiting_payment', 'paid', 'expire']).withMessage('Status pembayaran tidak valid'),
+    handleValidationErrors,
+];
+
 // Purchase code validation
 const validatePurchaseCode = [
     param('purchase_code')
@@ -107,5 +118,6 @@ module.exports = {
     validateProductCreate,
     validateProductUpdate,
     validateStatusSellerUpdate,
+    validateStatusPaymentUpdate,
     validatePurchaseCode,
 };

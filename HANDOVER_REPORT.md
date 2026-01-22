@@ -20,15 +20,28 @@ Aplikasi ini memiliki sistem manajemen data lengkap untuk Admin:
 
 - **Read**: Admin dapat melihat semua pesanan masuk (Status: Pending, Processing, Success, Error).
 - **Update**: Mengubah status pesanan secara manual (misal: dari _Processing_ menjadi _Success_).
-
-### D. Fitur Tambahan
-
-- **Admin Dashboard**: Ringkasan statistik (Total Pesanan, Total Pendapatan).
-- **Search**: Pencarian real-time untuk produk dan riwayat pesanan.
+- **Update Pembayaran**: Admin kini bisa mengubah status pembayaran manual jika ada kendala sistem (Pending -> Paid).
 
 ---
 
-## 2. Cara Deploy (Panduan Instalasi)
+## 2. Status Payment Gateway (Midtrans) - _PENTING_
+
+Sistem pembayaran saat ini telah dikonfigurasi ke **MODE PRODUKSI (LIVE)**.
+
+- **Status**: ✅ Siap menerima uang asli (bukan testing lagi).
+- **Tindakan Diperlukan**:
+  Agar uang masuk ke rekening perusahaan, mohon input **Server Key** & **Client Key** produksi dari dashboard Midtrans ke file konfigurasi (`.env`).
+  - _Catatan_: Saat ini kode sudah diset `isProduction: true`. Segera setelah Key dimasukkan, pembayaran via QRIS/VA/E-Wallet akan langsung aktif dan real-time.
+
+---
+
+## 3. Update Branding & UI (Terbaru)
+
+- **Logo Admin**: Halaman login Admin kini menampilkan **Logo Asli Soeltan Medsos**, menggantikan logo inisial "S" default, memberikan kesan lebih profesional dan kredibel.
+
+---
+
+## 4. Cara Deploy (Panduan Instalasi)
 
 ### Opsi A: Deployment Otomatis (Vercel) - _TERM Mudah_
 
@@ -56,11 +69,7 @@ Jika menggunakan server sendiri (Ubuntu/CentOS).
 2.  Akan muncul folder baru bernama `dist`.
 3.  Upload isi folder `dist` tersebut ke folder publik di hosting (misal: `public_html` atau `/var/www/html`).
 
-**Langkah 3: Koneksi**
-
-- Pastikan Frontend bisa mengakses URL Backend (atur di `.env`).
-
 ---
 
-**Status Akhir:**
-Aplikasi sudah **SIAP DEPLOY** dan semua fitur CRUD di atas telah teruji berfungsi dengan baik.
+**Kesimpulan:**
+Aplikasi sudah **SIAP LIVE**. Seluruh fitur CRUD berfungsi, branding sudah sesuai identitas bisnis, dan payment gateway siap switch ke mode uang asli.

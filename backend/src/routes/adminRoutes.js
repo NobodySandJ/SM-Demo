@@ -6,7 +6,8 @@ const {
     validateAdminLogin,
     validateProductCreate,
     validateProductUpdate,
-    validateStatusSellerUpdate
+    validateStatusSellerUpdate,
+    validateStatusPaymentUpdate
 } = require('../middleware/validation');
 
 const router = express.Router();
@@ -33,6 +34,7 @@ router.delete('/product/:id', adminController.deleteProduct);
 router.get('/orders', adminController.getAllOrders);
 router.get('/order/:id', adminController.getOrderDetail);
 router.put('/order/:id/status-seller', validateStatusSellerUpdate, adminController.updateSellerStatus);
+router.put('/order/:id/status-payment', validateStatusPaymentUpdate, adminController.updatePaymentStatus);
 router.delete('/order/:id', adminController.deleteOrder);
 router.delete('/orders/batch', adminController.batchDeleteOrders);
 
