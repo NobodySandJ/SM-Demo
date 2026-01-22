@@ -507,6 +507,78 @@ async function createAdmin(req, res) {
     }
 }
 
+/**
+ * Delete single order
+ * @route DELETE /api/admin/order/:id
+ */
+async function deleteOrder(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Delete order (cascade will handle payment_logs if configured, otherwise might need manual delete)
+        const { error } = await supabase
+            .from('orders')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            message: 'Order berhasil dihapus',
+        });
+    } catch (error) {
+        console.error('Delete order error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menghapus order',
+        });
+    }
+}
+
+/**
+ * Batch delete orders
+ * @route DELETE /api/admin/orders/batch
+ */
+async function batchDeleteOrders(req, res) {
+    try {
+        const { criteria } = req.body; // 'week' or 'month'
+
+        let dateThreshold;
+        const now = new Date();
+
+        if (criteria === 'week') {
+            dateThreshold = new Date(now.setDate(now.getDate() - 7));
+        } else if (criteria === 'month') {
+            dateThreshold = new Date(now.setDate(now.getDate() - 30));
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Criteria tidak valid (week/month)',
+            });
+        }
+
+        const { error, count } = await supabase
+            .from('orders')
+            .delete({ count: 'exact' })
+            .lt('created_at', dateThreshold.toISOString());
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            message: `${count || 0} order berhasil dihapus`,
+            count,
+        });
+    } catch (error) {
+        console.error('Batch delete error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menghapus order secara massal',
+        });
+    }
+}
+
 module.exports = {
     login,
     getProfile,
@@ -520,4 +592,6 @@ module.exports = {
     getPaymentLogs,
     getDashboard,
     createAdmin,
+    deleteOrder,
+    batchDeleteOrders,
 };

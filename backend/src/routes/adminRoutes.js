@@ -33,6 +33,8 @@ router.delete('/product/:id', adminController.deleteProduct);
 router.get('/orders', adminController.getAllOrders);
 router.get('/order/:id', adminController.getOrderDetail);
 router.put('/order/:id/status-seller', validateStatusSellerUpdate, adminController.updateSellerStatus);
+router.delete('/order/:id', adminController.deleteOrder);
+router.delete('/orders/batch', adminController.batchDeleteOrders);
 
 // Payment logs
 router.get('/payment-logs', adminController.getPaymentLogs);

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { adminApi, productApi } from '../../services/api';
 import { formatRupiah, formatDate, getPaymentStatusInfo, getSellerStatusInfo } from '../../utils/formatters';
 import { PageLoader } from '../../components/LoadingSpinner';
-import { Search, Eye, X, Phone, User, ExternalLink, Copy, Check } from 'lucide-react';
+import { Search, Eye, X, Phone, User, ExternalLink, Copy, Check, Trash2, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -90,13 +90,57 @@ export default function OrdersManagement() {
     setTimeout(() => setCopiedPhone(null), 2000);
   };
 
+  const handleDeleteOrder = async (id, e) => {
+    e.stopPropagation();
+    if (!window.confirm('Apakah Anda yakin ingin menghapus order ini? Data tidak dapat dikembalikan.')) return;
+
+    try {
+      await adminApi.deleteOrder(id);
+      toast.success('Order berhasil dihapus');
+      loadOrders();
+    } catch (error) {
+      toast.error('Gagal menghapus order');
+    }
+  };
+
+  const handleBatchDelete = async (criteria) => {
+    const label = criteria === 'week' ? '1 MINGGU' : '1 BULAN';
+    const confirmText = prompt(`Konfirmasi HAPUS SEMUA order yang lebih lama dari ${label}?\n\nKetik "DELETE" untuk konfirmasi.`);
+    
+    if (confirmText !== 'DELETE') return;
+
+    try {
+      const res = await adminApi.batchDeleteOrders(criteria);
+      toast.success(res.data.message);
+      loadOrders();
+    } catch (error) {
+      toast.error('Gagal menghapus order massal');
+    }
+  };
+
   if (loading && orders.length === 0) return <PageLoader />;
 
   return (
     <div className="animate-fade-in space-y-8 pb-20">
       <div>
         <h1 className="text-3xl font-bold text-white mb-2">Orders Management</h1>
-        <p className="text-slate-400">Pantau dan kelola pesanan masuk.</p>
+        <div className="flex justify-between items-end">
+          <p className="text-slate-400">Pantau dan kelola pesanan masuk.</p>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => handleBatchDelete('week')}
+              className="px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-900/50 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <Trash2 size={16} /> Hapus {'>'} 1 Minggu
+            </button>
+            <button 
+              onClick={() => handleBatchDelete('month')}
+              className="px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-900/50 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <Trash2 size={16} /> Hapus {'>'} 1 Bulan
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Filters Bar */}
@@ -222,9 +266,14 @@ export default function OrdersManagement() {
                          </span>
                       </td>
                       <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={(e) => handleDeleteOrder(order.id, e)} className="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-500 border border-transparent hover:border-red-500/30 rounded-lg transition-all" title="Hapus">
+                          <Trash2 size={16} />
+                        </button>
                         <button onClick={() => setSelectedOrder(order)} className="p-2 bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-lg transition-all" title="Detail">
                           <Eye size={16} />
                         </button>
+                      </div>
                       </td>
                     </tr>
                   );
