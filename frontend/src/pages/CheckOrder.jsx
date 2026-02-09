@@ -189,10 +189,13 @@ export default function CheckOrder() {
             </p>
           </form>
 
+        <AnimatePresence mode="wait">
           {order && (
             <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
+               key={Array.isArray(order) ? 'group' : 'single'}
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
                className="space-y-4"
             >
               {Array.isArray(order) ? (
@@ -289,6 +292,7 @@ export default function CheckOrder() {
               )}
             </motion.div>
           )}
+        </AnimatePresence>
         </motion.div>
 
         {/* Help Section */}
