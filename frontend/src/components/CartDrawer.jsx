@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { shortenLink } from '../utils/formatters';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -86,7 +87,7 @@ export default function CartDrawer() {
                     <div className="flex-1 min-w-0">
                       <h4 className="text-white font-medium line-clamp-2 text-sm mb-1">{item.name}</h4>
                       {item.target_link && (
-                        <p className="text-xs text-slate-500 truncate mb-1">Target: {item.target_link}</p>
+                        <p className="text-xs text-slate-500 truncate mb-1">Target: {shortenLink(item.target_link, 30)}</p>
                       )}
                       <p className="text-indigo-400 font-bold text-sm">
                         Rp {item.price?.toLocaleString('id-ID')}
