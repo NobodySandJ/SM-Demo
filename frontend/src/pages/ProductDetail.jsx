@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productApi } from '../services/api';
-import { formatRupiah, platformIcons } from '../utils/formatters';
+import { formatRupiah, platformIcons, shortenLink } from '../utils/formatters';
 import { PageLoader } from '../components/LoadingSpinner';
 import Breadcrumb from '../components/Breadcrumb';
 import { motion } from 'framer-motion';

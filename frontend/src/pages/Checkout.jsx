@@ -34,25 +34,35 @@ export default function Checkout() {
     const snapUrl = 'https://app.midtrans.com/snap/snap.js'; 
     const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY; 
 
-    if (clientKey && !document.getElementById('midtrans-script')) {
-      const script = document.createElement('script');
-      script.id = 'midtrans-script';
-      script.src = snapUrl;
-      script.setAttribute('data-client-key', clientKey);
-      script.async = true;
-      script.onload = () => {
-        console.log('Midtrans Snap loaded');
-        // Initialize mobile enhancements
-        setTimeout(() => {
+    const loadSnap = () => {
+      if (clientKey && !document.getElementById('midtrans-script')) {
+        const script = document.createElement('script');
+        script.id = 'midtrans-script';
+        script.src = snapUrl;
+        script.setAttribute('data-client-key', clientKey);
+        script.async = true;
+        
+        script.onload = () => {
+          console.log('Midtrans Snap loaded successfully');
           initializeMidtrans();
-        }, 100);
-      };
-      document.body.appendChild(script);
-    } else if (window.snap) {
-      // Initialize if Snap is already loaded
-      initializeMidtrans();
-    }
+        };
+        
+        script.onerror = () => {
+          console.error('Failed to load Midtrans Snap script');
+          toast.error('Gagal memuat sistem pembayaran. Silakan refresh halaman.');
+        };
+        
+        document.body.appendChild(script);
+      } else if (window.snap) {
+        initializeMidtrans();
+      }
+    };
+
+    loadSnap();
+
+    // Cleanup if necessary (optional in this case as Snap is global)
   }, []);
+
 
   const handleProcessOrder = async () => {
     if (cart.length === 0) return;
