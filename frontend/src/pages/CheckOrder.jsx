@@ -131,12 +131,13 @@ export default function CheckOrder() {
     }
   };
 
-  // Check if order needs payment
+  // Check if order needs payment (Only for non-manual payments)
   const needsPayment = order && (
     Array.isArray(order) 
-      ? order.some(o => ['pending', 'waiting_payment'].includes(o.status_payment))
-      : ['pending', 'waiting_payment'].includes(order.status_payment)
+      ? order.some(o => ['pending', 'waiting_payment'].includes(o.status_payment) && o.snap_token !== 'MANUAL')
+      : ['pending', 'waiting_payment'].includes(order.status_payment) && order.snap_token !== 'MANUAL'
   );
+
 
   return (
     <div className="min-h-screen bg-slate-900 pt-28 pb-12">

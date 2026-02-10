@@ -264,7 +264,7 @@ Terima kasih!`;
         </motion.div>
 
         {/* Payment Button */}
-        {order?.status === 'pending' && (
+        {['pending', 'waiting_payment'].includes(order?.status_payment) && order?.snap_token !== 'MANUAL' && (
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
