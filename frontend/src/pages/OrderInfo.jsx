@@ -66,77 +66,6 @@ export default function OrderInfo() {
     }
   };
 
-  const handlePay = async () => {
-    setPaying(true);
-    setError('');
-
-    try {
-      const response = await orderApi.createPayment(purchaseCode);
-      const { snap_token } = response.data.data;
-
-      // Check if it's a dummy token
-      if (snap_token && snap_token.startsWith('DUMMY-TOKEN-')) {
-        await handleDummyPayment(purchaseCode, snap_token);
-        return;
-      }
-
-      // Open Midtrans Snap for real payments with mobile optimization
-      if (window.snap) {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        window.snap.pay(snap_token, {
-          // Mobile-friendly configuration
-          skipOrderSummary: false,
-          gopayMode: isMobile ? 'deeplink' : 'redirect',
-          language: 'id',
-          
-          onSuccess: () => loadOrder(),
-          onPending: () => loadOrder(),
-          onError: (result) => {
-            setError('Pembayaran gagal. Silakan coba lagi.');
-            console.error('Payment error:', result);
-          },
-          onClose: () => {
-            loadOrder();
-            // Don't show error on close for mobile users as they might switch apps
-            if (!isMobile) {
-              toast.info('Jendela pembayaran ditutup. Status akan diperbarui otomatis.');
-            }
-          },
-        });
-      } else {
-        setError('Payment gateway tidak tersedia');
-      }
-    } catch (error) {
-      const message = error.response?.data?.message || 'Gagal memproses pembayaran';
-      setError(message);
-    } finally {
-      setPaying(false);
-    }
-  };
-
-  // Simulate successful payment for dummy mode
-  const handleDummyPayment = async (code, token) => {
-    const confirm = window.confirm(
-      "MODE DUMMY: Simulasikan pembayaran BERHASIL?\n\n(Klik OK untuk Paid, Cancel untuk batal)"
-    );
-
-    if (confirm) {
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-        await axios.post(`${API_URL.replace('/api', '')}/api/dev/force-success`, {
-           purchase_code: code
-        });
-        
-        alert('Simulasi Sukses! Refreshing...');
-        loadOrder();
-      } catch (err) {
-        console.error('Dev sim error:', err);
-        alert('Gagal update status dummy');
-      }
-    }
-  };
-
   const handleCopyCode = () => {
     navigator.clipboard.writeText(purchaseCode);
     setCopied(true);
@@ -262,25 +191,6 @@ Terima kasih!`;
             <OrderStepper status={order?.status} />
           </div>
         </motion.div>
-
-        {/* Payment Button */}
-        {['pending', 'waiting_payment'].includes(order?.status_payment) && order?.snap_token !== 'MANUAL' && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mt-6"
-          >
-            <button
-              onClick={handlePay}
-              disabled={paying}
-              className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/50"
-            >
-              <CreditCard size={20} />
-              {paying ? 'Memproses...' : 'Bayar Sekarang'}
-            </button>
-          </motion.div>
-        )}
 
         {/* Error Message */}
         {error && (
